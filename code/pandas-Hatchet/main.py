@@ -36,12 +36,15 @@ print("Size of unified GraphFrame's dataframe: " + str(unified_dataframe_size) +
 ### Dask ###
 print("\n\n############ DASK ############")
 from dask.dataframe import from_pandas
+comp_time_dask_start = time.time()
 ugd_ri = unified_gf.dataframe.reset_index() # https://docs.dask.org/en/latest/generated/dask.dataframe.DataFrame.reset_index.html
 ddf = from_pandas(ugd_ri, npartitions=100)
 computed_ddf = ddf.compute()
+comp_time_dask = time.time() - comp_time_dask_start
 print(computed_ddf)
 
 ### Metrics ###
+print(f"Composition time (Read time + Unify time) for {num_datasets} datasets ({num_datasets} reads, {num_datasets} unifies): " + str(comp_time_dask))
 dask_dataframe_size = sys.getsizeof(computed_ddf)
 print("Size of dask dataframe: " + str(dask_dataframe_size) + " bytes. " + str(dask_dataframe_size/1000000) + " mb(s).")
 
