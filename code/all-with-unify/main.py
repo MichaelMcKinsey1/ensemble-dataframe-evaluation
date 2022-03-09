@@ -1,6 +1,4 @@
 import sys
-import os
-import platform
 import time
 import pandas as pd
 import numpy as np
