@@ -3,9 +3,10 @@ import pandas as pd
 import helpers
 from helpers import print_memory_size, print_separator
 
-EXTRA_OUT=True
-MEMORY=True
+EXTRA_OUT=False
+MEMORY=False
 TIME=True
+EXTRA_ITER=1000
 
 # Pandas display options for cli.
 pd.set_option('display.width', 1000)
@@ -17,20 +18,16 @@ def pandas_eval(pandas_df):
         print(pandas_df)
 
     if(MEMORY):
-        # Memory
         print_memory_size(pandas_df, "Pandas dataframe (from Hatchet)")
 
     if(TIME):
-        # Time
-        temp_num=10000
         # Row traverse
         row_time_data = []
         for row in pandas_df.itertuples(): # itertuples is faster than iterrows according to docs.
-            start = time.time_ns()
-            for j in range(temp_num):
+            start = time.time_ns() # The time.time_ns() resolution is 3 times better than the time.time() resolution on Linux and Windows. [https://peps.python.org/pep-0564/]
+            for j in range(EXTRA_ITER):
                 for i in range(len(row)):
-                    #str(row[i]) + str(j)
-                    pass
+                    row[i]
             end = time.time_ns() - start
             row_time_data.append([row[0], end])
         row_traverse_df = pd.DataFrame(row_time_data, columns=['Row Index', 'Traversal Time'])
@@ -39,9 +36,9 @@ def pandas_eval(pandas_df):
         column_time_data = []
         for column_name, column in pandas_df.iteritems():
             start = time.time_ns()
-            for j in range(temp_num):
+            for j in range(EXTRA_ITER):
                 for i in range(len(column)):
-                    a = column[i]
+                    column[i]
             end = time.time_ns() - start
             column_time_data.append([column_name, end])
         column_traverse_df = pd.DataFrame(column_time_data, columns=['Column Index', 'Traversal Time'])
@@ -49,11 +46,11 @@ def pandas_eval(pandas_df):
         # Diagonal traverse (Snaking down the rows)
         row_size, column_size = pandas_df.shape
         start = time.time_ns()
-        for j in range(temp_num):
+        for j in range(EXTRA_ITER):
             for i in range(row_size):
-                a = pandas_df.iat[i,i%column_size]
+                pandas_df.iat[i,i%column_size]
         end = time.time_ns() - start
-        print(f"Diagonal traverse time: {end}ns.")
+        print(f"Diagonal traverse time: {end}s.")
 
 
 def dask_eval(dask_df):
@@ -68,8 +65,36 @@ def dask_eval(dask_df):
         print_memory_size(computed_ddf, "computed Dask dataframe")
 
     if(TIME):
-        # Time
-        pass
+        # Row traverse
+        row_time_data = []
+        for row in computed_ddf.itertuples():
+            start = time.time_ns()
+            for j in range(EXTRA_ITER):
+                for i in range(len(row)):
+                    row[i]
+            end = time.time_ns() - start
+            row_time_data.append([row[0], end])
+        row_traverse_df = pd.DataFrame(row_time_data, columns=['Row Index', 'Traversal Time'])
+        print(row_traverse_df)
+        # Column traverse
+        column_time_data = []
+        for column_name, column in computed_ddf.iteritems():
+            start = time.time_ns()
+            for j in range(EXTRA_ITER):
+                for i in range(len(column)):
+                    column[i]
+            end = time.time_ns() - start
+            column_time_data.append([column_name, end])
+        column_traverse_df = pd.DataFrame(column_time_data, columns=['Column Index', 'Traversal Time'])
+        print(column_traverse_df)
+        # Diagonal traverse (Snaking down the rows)
+        row_size, column_size = computed_ddf.shape
+        start = time.time_ns()
+        for j in range(EXTRA_ITER):
+            for i in range(row_size):
+                computed_ddf.iat[i,i%column_size]
+        end = time.time_ns() - start
+        print(f"Diagonal traverse time: {end}s.")
 
 def arrow_eval(arrow_table):
     if(EXTRA_OUT):
@@ -80,8 +105,20 @@ def arrow_eval(arrow_table):
         print_memory_size(arrow_table, "Arrow table")
 
     if(TIME):
-        # Time
-        pass
+        # Row traverse
+        # Column traverse
+        column_time_data = []
+        for k in range(len(arrow_table.columns)):
+            column = arrow_table.column(k)
+            start = time.time_ns()
+            for j in range(EXTRA_ITER):
+                for i in range(len(column)):
+                    column[i]
+            end = time.time_ns() - start
+            column_time_data.append([arrow_table.column_names[k], end])
+        column_traverse_df = pd.DataFrame(column_time_data, columns=['Column Index', 'Traversal Time'])
+        print(column_traverse_df)
+        # Diagonal traverse (Snaking down the rows)
 
 
 def main():
