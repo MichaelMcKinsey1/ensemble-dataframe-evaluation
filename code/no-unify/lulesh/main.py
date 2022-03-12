@@ -1,5 +1,6 @@
 import time
 import pandas as pd
+import pyarrow as pa
 import helpers
 from helpers import print_memory_size, print_separator
 
@@ -27,7 +28,7 @@ def pandas_eval(pandas_df):
             start = time.time_ns() # The time.time_ns() resolution is 3 times better than the time.time() resolution on Linux and Windows. [https://peps.python.org/pep-0564/]
             for j in range(EXTRA_ITER):
                 for i in range(len(row)):
-                    row[i]
+                    str(row[i])
             end = time.time_ns() - start
             row_time_data.append([row[0], end])
         row_traverse_df = pd.DataFrame(row_time_data, columns=['Row Index', 'Traversal Time'])
@@ -71,7 +72,7 @@ def dask_eval(dask_df):
             start = time.time_ns()
             for j in range(EXTRA_ITER):
                 for i in range(len(row)):
-                    row[i]
+                    str(row[i])
             end = time.time_ns() - start
             row_time_data.append([row[0], end])
         row_traverse_df = pd.DataFrame(row_time_data, columns=['Row Index', 'Traversal Time'])
@@ -108,12 +109,14 @@ def arrow_eval(arrow_table):
         # Row traverse
         # Column traverse
         column_time_data = []
+        total = 0
         for k in range(len(arrow_table.columns)):
             column = arrow_table.column(k)
             start = time.time_ns()
             for j in range(EXTRA_ITER):
                 for i in range(len(column)):
-                    column[i]
+                    if k==4:
+                        total += column[i]
             end = time.time_ns() - start
             column_time_data.append([arrow_table.column_names[k], end])
         column_traverse_df = pd.DataFrame(column_time_data, columns=['Column Index', 'Traversal Time'])
