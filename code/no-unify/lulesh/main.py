@@ -107,6 +107,16 @@ def arrow_eval(arrow_table):
 
     if(TIME):
         # Row traverse
+        row_time_data = []
+        for k in range(len(arrow_table.column(0))):
+            start = time.time_ns()
+            for j in range(EXTRA_ITER):
+                for i in range(len(arrow_table.columns)):
+                    str(arrow_table.column(i)[k])
+            end = time.time_ns() - start
+            row_time_data.append([k, end])
+        row_traverse_df = pd.DataFrame(row_time_data, columns=['Row Index', 'Traversal Time'])
+        print(row_traverse_df)
         # Column traverse
         column_time_data = []
         total = 0
@@ -115,13 +125,19 @@ def arrow_eval(arrow_table):
             start = time.time_ns()
             for j in range(EXTRA_ITER):
                 for i in range(len(column)):
-                    if k==4:
-                        total += column[i]
+                    str(column[i])
             end = time.time_ns() - start
             column_time_data.append([arrow_table.column_names[k], end])
         column_traverse_df = pd.DataFrame(column_time_data, columns=['Column Index', 'Traversal Time'])
         print(column_traverse_df)
         # Diagonal traverse (Snaking down the rows)
+        column_size = len(arrow_table.columns)
+        start = time.time_ns()
+        for j in range(EXTRA_ITER):
+            for i in range(len(arrow_table.column(0))):
+                str(arrow_table.column(i%column_size)[i])
+        end = time.time_ns() - start
+        print(f"Diagonal traverse time: {end}s.")
 
 
 def main():
