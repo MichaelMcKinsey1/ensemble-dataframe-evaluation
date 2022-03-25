@@ -6,7 +6,7 @@ import helpers
 from helpers import print_memory_size, print_separator
 
 EXTRA_OUT=False
-MEMORY=False
+MEMORY=True
 TIME=True
 EXTRA_ITER=1000
 NANOS=1000000000
