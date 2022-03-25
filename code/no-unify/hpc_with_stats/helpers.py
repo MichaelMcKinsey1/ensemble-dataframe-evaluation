@@ -42,3 +42,12 @@ def print_memory_size(obj, obj_name):
 def print_separator(name):
     separator_str = "----------"
     print(f"\n\n\n{separator_str}\n{name}\n{separator_str}\n\n\n")
+
+
+def calc_statistics(abs_min, abs_max, new_num):
+    if new_num < abs_min:
+        abs_min = new_num
+    if new_num > abs_max:
+        abs_max = new_num
+    return abs_min, abs_max
+    
