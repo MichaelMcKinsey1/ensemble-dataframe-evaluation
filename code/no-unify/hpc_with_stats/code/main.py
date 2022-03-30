@@ -34,7 +34,7 @@ def pandas_eval(pandas_df):
             start = time.time_ns() # The time.time_ns() resolution is 3 times better than the time.time() resolution on Linux and Windows. [https://peps.python.org/pep-0564/]
             for j in range(EXTRA_ITER):
                 for i in range(len(row)):
-                    str(row[i])
+                    row[i]
             end = (time.time_ns() - start)/EXTRA_ITER
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
@@ -49,10 +49,9 @@ def pandas_eval(pandas_df):
         a_max = sys.float_info.min
         for column_name, column in pandas_df.iteritems():
             start = time.time_ns()
-            for j in range(EXTRA_ITER):
-                for index, value in column.iteritems():
-                    str(value)
-            end = (time.time_ns() - start)/EXTRA_ITER
+            for index, value in column.iteritems():
+                value
+            end = (time.time_ns() - start)
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
         mean /= len(pandas_df.columns)
@@ -67,10 +66,9 @@ def pandas_eval(pandas_df):
         # Diagonal traverse (Snaking down the rows)
         row_size, column_size = pandas_df.shape
         start = time.time_ns()
-        for j in range(EXTRA_ITER):
-            for i in range(row_size):
-                pandas_df.iat[i,i%column_size]
-        end = (time.time_ns() - start)/EXTRA_ITER
+        for i in range(row_size):
+            pandas_df.iat[i,i%column_size]
+        end = (time.time_ns() - start)
         print(f"Diagonal traverse time: {end}ns ({end/NANOS}s).")
 
 
@@ -94,7 +92,7 @@ def dask_eval(dask_df):
             start = time.time_ns()
             for j in range(EXTRA_ITER):
                 for i in range(len(row)):
-                    str(row[i])
+                    row[i]
             end = (time.time_ns() - start)/EXTRA_ITER
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
@@ -109,10 +107,9 @@ def dask_eval(dask_df):
         a_max = sys.float_info.min
         for column_name, column in computed_ddf.iteritems():
             start = time.time_ns()
-            for j in range(EXTRA_ITER):
-                for index, value in column.iteritems():
-                    str(value)
-            end = (time.time_ns() - start)/EXTRA_ITER
+            for index, value in column.iteritems():
+                value
+            end = (time.time_ns() - start)
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
         mean /= len(dask_df.columns)
@@ -125,10 +122,9 @@ def dask_eval(dask_df):
         # Diagonal traverse (Snaking down the rows)
         row_size, column_size = computed_ddf.shape
         start = time.time_ns()
-        for j in range(EXTRA_ITER):
-            for i in range(row_size):
-                computed_ddf.iat[i,i%column_size]
-        end = (time.time_ns() - start)/EXTRA_ITER
+        for i in range(row_size):
+            computed_ddf.iat[i,i%column_size]
+        end = (time.time_ns() - start)
         print(f"Diagonal traverse time: {end}ns ({end/NANOS}s).")
 
 def arrow_eval(arrow_table):
@@ -148,7 +144,7 @@ def arrow_eval(arrow_table):
             start = time.time_ns()
             for j in range(EXTRA_ITER):
                 for i in range(len(arrow_table.columns)):
-                    str(arrow_table.column(i)[k])
+                    arrow_table.column(i)[k]
             end = (time.time_ns() - start)/EXTRA_ITER
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
@@ -165,10 +161,9 @@ def arrow_eval(arrow_table):
         for k in range(len(arrow_table.columns)):
             column = arrow_table.column(k)
             start = time.time_ns()
-            for j in range(EXTRA_ITER):
-                for i in range(len(column)):
-                    str(column[i])
-            end = (time.time_ns() - start)/EXTRA_ITER
+            for i in range(len(column)):
+                column[i]
+            end = (time.time_ns() - start)
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
         mean /= len(arrow_table.columns)
@@ -179,10 +174,9 @@ def arrow_eval(arrow_table):
         # Diagonal traverse (Snaking down the rows)
         column_size = len(arrow_table.columns)
         start = time.time_ns()
-        for j in range(EXTRA_ITER):
-            for i in range(len(arrow_table.column(0))):
-                str(arrow_table.column(i%column_size)[i])
-        end = (time.time_ns() - start)/EXTRA_ITER
+        for i in range(len(arrow_table.column(0))):
+            arrow_table.column(i%column_size)[i]
+        end = (time.time_ns() - start)
         print(f"Diagonal traverse time: {end}ns ({end/NANOS}s).")
 
 
