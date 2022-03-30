@@ -7,4 +7,4 @@
 #SBATCH --output=hpc_%J.sbatch_out
 #SBATCH --error=hpc_%J.sbatch_err
 
-~/venv/python-3.7.2/bin/python code/main.py 1000 ~/data/hpctoolkit-kripke-database-2589696
+~/venv/python-3.7.2/bin/python code/main.py 1000 ~/data/hpctoolkit-kripke-database-2589696 hpc

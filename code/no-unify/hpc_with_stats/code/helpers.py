@@ -6,9 +6,15 @@ from dask.dataframe import from_pandas
 MB=1000000
 
 
-def prep_hatchet_gf(dataset):
+def prep_hatchet_gf(dataset, reader_type):
     # Read in data
-    gf = ht.GraphFrame.from_hpctoolkit(dataset)
+    if reader_type=="hpc":
+        gf = ht.GraphFrame.from_hpctoolkit(dataset)
+    elif reader_type=="lulesh":
+        gf = ht.GraphFrame.from_caliper_json(dataset)
+    else:
+        print("Error: Unknown dataset type.")
+        exit()
 
     # Reset multindex ["rank", "node"] and set index to be "nid".
     df_multiindex = ["rank", "node"]

@@ -182,8 +182,9 @@ def arrow_eval(arrow_table):
 
 def main():
     dataset = str(sys.argv[2])
+    reader_type = str(sys.argv[3])
     
-    pandas_df_from_hatchet = (helpers.prep_hatchet_gf(dataset)).dataframe # Hatchet graphframe.dataframe
+    pandas_df_from_hatchet = (helpers.prep_hatchet_gf(dataset, reader_type)).dataframe # Hatchet graphframe.dataframe
     dask_df =  helpers.prep_dask_df(pandas_df_from_hatchet) # Pre-computed dask dataframe
     arrow_table = helpers.prep_arrow_table(pandas_df_from_hatchet) # Arrow table from pandas.
 
