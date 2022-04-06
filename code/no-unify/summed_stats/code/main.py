@@ -6,11 +6,13 @@ import sys
 import helpers
 from helpers import print_memory_size, print_separator, calc_statistics
 
-EXTRA_OUT=False
+EXTRA_OUT=True
 MEMORY=True
 TIME=True
+BUILT_IN=True
 EXTRA_ITER=int(sys.argv[1])
 NANOS=1000000000
+N_TRAVERSALS=1000
 
 # Pandas display options for cli.
 pd.set_option('display.width', 1000)
@@ -26,11 +28,16 @@ def pandas_eval(pandas_df):
         print_memory_size(pandas_df, "Pandas dataframe (from Hatchet)")
 
     if(TIME):
-        # Row traverse (Iterables)
+        num_rows = len(pandas_df)
+        num_cols = len(pandas_df.columns)
+        # Row traverse (Iterables) (traversing a row)
         mean = 0
         a_min = sys.float_info.max
         a_max = sys.float_info.min
+        time_saver = 0
         for row in pandas_df.itertuples(): # itertuples is faster than iterrows according to docs.
+            if time_saver > 10: # Save time while retaining most integrity of data.
+                break
             start = time.time_ns() # The time.time_ns() resolution is 3 times better than the time.time() resolution on Linux and Windows. [https://peps.python.org/pep-0564/]
             for j in range(EXTRA_ITER):
                 for i in range(len(row)):
@@ -38,12 +45,13 @@ def pandas_eval(pandas_df):
             end = (time.time_ns() - start)/EXTRA_ITER
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
-        mean /= len(pandas_df)
-        row_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean],
-                                        ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS]],
-                                        columns=['Row Traverse (Iterables)', 'Traversal-Time Min', 'TT Max', 'TT Mean'])
+            time_saver += 1
+        mean /= time_saver
+        row_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_cols],
+                                        ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_cols]],
+                                        columns=['Row Traverse (Iterables)', 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals'])
         print(row_traverse_df)
-        # Column traverse (Iterables)
+        # Column traverse (Iterables) (traversing a column)
         mean = 0
         a_min = sys.float_info.max
         a_max = sys.float_info.min
@@ -54,10 +62,10 @@ def pandas_eval(pandas_df):
             end = (time.time_ns() - start)
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
-        mean /= len(pandas_df.columns)
-        column_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean],
-                                           ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS]],
-                                           columns=['Column Traverse (Iterables)', 'Traversal-Time Min', 'TT Max', 'TT Mean'])
+        mean /= num_cols
+        column_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_rows],
+                                           ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_rows]],
+                                           columns=['Column Traverse (Iterables)', 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals'])
         print(column_traverse_df)
         # Column traverse (Random Access)
             # ~ Removed
@@ -84,11 +92,16 @@ def dask_eval(dask_df):
         print_memory_size(computed_ddf, "computed Dask dataframe")
 
     if(TIME):
+        num_rows = len(dask_df)
+        num_cols = len(dask_df.columns)
         # Row traverse
         mean = 0
         a_min = sys.float_info.max
         a_max = sys.float_info.min
+        time_saver = 0
         for row in computed_ddf.itertuples():
+            if time_saver > 10: # Save time while retaining most integrity of data.
+                break
             start = time.time_ns()
             for j in range(EXTRA_ITER):
                 for i in range(len(row)):
@@ -96,10 +109,11 @@ def dask_eval(dask_df):
             end = (time.time_ns() - start)/EXTRA_ITER
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
-        mean /= len(dask_df)
-        row_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean],
-                                        ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS]],
-                                        columns=['Row Traverse (Iterables)', 'Traversal-Time Min', 'TT Max', 'TT Mean'])
+            time_saver += 1
+        mean /= time_saver
+        row_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_cols],
+                                        ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_cols]],
+                                        columns=['Row Traverse (Iterables)', 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals'])
         print(row_traverse_df)
         # Column traverse
         mean = 0
@@ -112,10 +126,10 @@ def dask_eval(dask_df):
             end = (time.time_ns() - start)
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
-        mean /= len(dask_df.columns)
-        column_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean],
-                                           ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS]],
-                                           columns=['Column Traverse (Iterables)', 'Traversal-Time Min', 'TT Max', 'TT Mean'])
+        mean /= num_cols
+        column_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_rows],
+                                           ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_rows]],
+                                           columns=['Column Traverse (Iterables)', 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals'])
         print(column_traverse_df)
         # Column traverse (Random Access)
             # ~ Removed
@@ -136,11 +150,16 @@ def arrow_eval(arrow_table):
         print_memory_size(arrow_table, "Arrow table")
 
     if(TIME):
+        num_rows = len(arrow_table.column(0))
+        num_cols = len(arrow_table.columns)
         # Row traverse
         mean = 0
         a_min = sys.float_info.max
         a_max = sys.float_info.min
+        time_saver = 0
         for k in range(len(arrow_table.column(0))):
+            if time_saver > 10: # Save time while retaining most integrity of data.
+                break
             start = time.time_ns()
             for j in range(EXTRA_ITER):
                 for i in range(len(arrow_table.columns)):
@@ -148,10 +167,11 @@ def arrow_eval(arrow_table):
             end = (time.time_ns() - start)/EXTRA_ITER
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
-        mean /= len(arrow_table.column(0))
-        row_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean],
-                                        ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS]],
-                                        columns=['Row Traverse', 'Traversal-Time Min', 'TT Max', 'TT Mean'])
+            time_saver += 1
+        mean /= time_saver
+        row_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_cols],
+                                        ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_cols]],
+                                        columns=['Row Traverse', 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals'])
         print(row_traverse_df)
         # Column traverse
         mean = 0
@@ -166,10 +186,10 @@ def arrow_eval(arrow_table):
             end = (time.time_ns() - start)
             a_min, a_max = calc_statistics(a_min, a_max, end)
             mean += end
-        mean /= len(arrow_table.columns)
-        column_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean],
-                                           ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS]],
-                                           columns=['Column Traverse', 'Traversal-Time Min', 'TT Max', 'TT Mean'])
+        mean /= num_cols
+        column_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_rows],
+                                           ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_rows]],
+                                           columns=['Column Traverse', 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals'])
         print(column_traverse_df)
         # Diagonal traverse (Snaking down the rows)
         column_size = len(arrow_table.columns)
@@ -178,9 +198,52 @@ def arrow_eval(arrow_table):
             arrow_table.column(i%column_size)[i]
         end = (time.time_ns() - start)
         print(f"Diagonal traverse time: {end}ns ({end/NANOS}s).")
+        # Column traverse
+        mean = 0
+        a_min = sys.float_info.max
+        a_max = sys.float_info.min
+        total = 0
+        for k in range(len(arrow_table.columns)):
+            column = arrow_table.column(k)
+            col_cnt = 0
+            start = time.time_ns()
+            for i in column:
+                col_cnt += 1
+            end = (time.time_ns() - start)
+            print(f"column count = {col_cnt}")
+            a_min, a_max = calc_statistics(a_min, a_max, end)
+            mean += end
+        mean /= num_cols
+        column_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_rows],
+                                           ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_rows]],
+                                           columns=['Column Traverse', 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals'])
+        print(column_traverse_df)
+
+    if(BUILT_IN):
+        # Column traverse
+        mean = 0
+        a_min = sys.float_info.max
+        a_max = sys.float_info.min
+        total = 0
+        for k in range(len(arrow_table.columns)):
+            column = arrow_table.column(k)
+            col_cnt = 0
+            start = time.time_ns()
+            col_cnt = pa.compute.count(column, "all")
+            end = (time.time_ns() - start)
+            print(f"column count = {col_cnt}")
+            a_min, a_max = calc_statistics(a_min, a_max, end)
+            mean += end
+        mean /= num_cols
+        column_traverse_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_rows],
+                                           ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_rows]],
+                                           columns=['Column Traverse (built-in)', 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals'])
+        print(column_traverse_df)
 
 
 def main():
+    start_total_time = time.time()
+
     dataset = str(sys.argv[2])
     reader_type = str(sys.argv[3])
     
@@ -191,14 +254,17 @@ def main():
     print(f"Rows: {len(pandas_df_from_hatchet)}")
     print(f"Columns: {len(pandas_df_from_hatchet.columns)}")
 
-    print_separator("Pandas")
-    pandas_eval(pandas_df_from_hatchet)
+    # print_separator("Pandas")
+    # pandas_eval(pandas_df_from_hatchet)
 
-    print_separator("Dask")
-    dask_eval(dask_df)
+    # print_separator("Dask")
+    # dask_eval(dask_df)
 
     print_separator("Arrow")
     arrow_eval(arrow_table)
+
+    end_total_time = time.time() - start_total_time
+    print(f"\n\n\nProgram Time: {end_total_time}s. {end_total_time/60}m.")
 
 
 main()
