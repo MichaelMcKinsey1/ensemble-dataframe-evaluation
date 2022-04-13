@@ -7,4 +7,4 @@
 #SBATCH --output=hpc_%J.sbatch_out
 #SBATCH --error=hpc_%J.sbatch_err
 
-~/venv/python-3.7.2/bin/python code/main.py 10000 /usr/workspace/wsb/asde/hatchet-datasets/large-hpctoolkit-datasets/db-ampi4-100-1 hpc
+~/venv/python-3.7.2/bin/python code/main.py /usr/workspace/wsb/asde/hatchet-datasets/large-hpctoolkit-datasets/db-ampi4-100-1 hpc
