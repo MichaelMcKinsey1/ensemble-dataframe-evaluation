@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --nodes=1
-#SBATCH --time=00:10:00
+#SBATCH --time=00:05:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=michaelmckinsey1@gmail.com
 #SBATCH --job-name=hpc_perf
 #SBATCH --output=hpc_%J.sbatch_out
 #SBATCH --error=hpc_%J.sbatch_err
 
-~/venv/python-3.7.2/bin/python code/main.py 10000 ~/data/hpctoolkit-kripke-database-2589696 hpc
+~/venv/python-3.7.2/bin/python code/main.py 1 ~/data/hpctoolkit-kripke-database-2589696 hpc

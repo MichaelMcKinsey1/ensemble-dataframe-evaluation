@@ -1,9 +1,6 @@
-import sys
 import hatchet as ht
 import pyarrow as pa
 from dask.dataframe import from_pandas
-
-MB=1000000
 
 
 def prep_hatchet_gf(dataset, reader_type):
@@ -40,20 +37,7 @@ def prep_arrow_table(pandas_df):
     return table
 
 
-def print_memory_size(obj, obj_name):
-    obj_size = sys.getsizeof(obj)
-    print(f"Size of {str(obj_name)}: {str(obj_size)} bytes. {str(obj_size/MB)} MB.")
-
-
 def print_separator(name):
     separator_str = "----------"
     print(f"\n\n\n{separator_str}\n{name}\n{separator_str}\n\n\n")
-
-
-def calc_statistics(abs_min, abs_max, new_num):
-    if new_num < abs_min:
-        abs_min = new_num
-    if new_num > abs_max:
-        abs_max = new_num
-    return abs_min, abs_max
     
