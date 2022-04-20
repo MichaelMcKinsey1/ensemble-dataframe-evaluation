@@ -24,7 +24,7 @@ def prep_hatchet_gf(dataset, reader_type):
     
 
 def prep_dask_df(pandas_df):
-    return from_pandas(pandas_df, npartitions=100)
+    return from_pandas(pandas_df, chunksize=1)
 
 
 def prep_arrow_table(pandas_df):
@@ -38,6 +38,6 @@ def prep_arrow_table(pandas_df):
 
 
 def print_separator(name):
-    separator_str = "----------"
+    separator_str = "=========="
     print(f"\n\n\n{separator_str}\n{name}\n{separator_str}\n\n\n")
     

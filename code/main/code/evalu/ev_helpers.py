@@ -4,7 +4,7 @@ MB=1000000
 
 def print_memory_size(obj, obj_name):
     obj_size = sys.getsizeof(obj)
-    print(f"Size of {str(obj_name)}: {str(obj_size)} bytes. {str(obj_size/MB)} MB.")
+    print(f"Size of {str(obj_name)} (using 'sys.getsizeof'): {str(obj_size)} bytes. {str(obj_size/MB)} MB.")
 
 
 def calc_statistics(abs_min, abs_max, new_num):

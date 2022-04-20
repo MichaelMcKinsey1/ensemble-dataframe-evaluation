@@ -5,6 +5,7 @@ from .ev_helpers import print_memory_size, calc_statistics
 
 RANDOM=False
 NANOS=1000000000
+MB=1000000
 
 
 def dask_eval(dask_df, print_dataframe, print_memory, print_time, print_built_in, N_TRAVERSALS):
@@ -18,9 +19,15 @@ def dask_eval(dask_df, print_dataframe, print_memory, print_time, print_built_in
         print(computed_ddf)
 
     if(print_memory):
-        # Memory
-        print_memory_size(dask_df, "Dask dataframe")
+        print("----------\nMemory\n----------")
+        computed_ddf.info(memory_usage="deep")
+        mem_usage_tmp = computed_ddf.memory_usage(deep=True)
+        print(f"\n{mem_usage_tmp}")
+        print(f"sum = {mem_usage_tmp.sum()} ({mem_usage_tmp.sum()/MB} MB)\n")
         print_memory_size(computed_ddf, "computed Dask dataframe")
+
+    if(print_time or print_built_in):
+        print("----------\nTime\n----------")
 
     if(print_time):
         # Row Traverse (Iterable)

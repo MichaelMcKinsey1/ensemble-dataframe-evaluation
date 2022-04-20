@@ -2,9 +2,11 @@ import sys
 import time
 import pandas as pd
 from .ev_helpers import print_memory_size, calc_statistics
+from .pandas_ev_cy import col_count_cy
 
 RANDOM=False
 NANOS=1000000000
+MB=1000000
 
 
 def pandas_eval(pandas_df, print_dataframe, print_memory, print_time, print_built_in, N_TRAVERSALS):
@@ -16,7 +18,15 @@ def pandas_eval(pandas_df, print_dataframe, print_memory, print_time, print_buil
         print(pandas_df)
 
     if(print_memory):
+        print("----------\nMemory\n----------")
+        pandas_df.info(memory_usage="deep")
+        mem_usage_tmp = pandas_df.memory_usage(deep=True)
+        print(f"\n{mem_usage_tmp}")
+        print(f"sum = {mem_usage_tmp.sum()} ({mem_usage_tmp.sum()/MB} MB)\n")
         print_memory_size(pandas_df, "Pandas dataframe (from Hatchet)")
+
+    if(print_time or print_built_in):
+        print("----------\nTime\n----------")
 
     if(print_time):
         # Row traverse (Iterable) (traversing a row)
@@ -132,6 +142,11 @@ def pandas_eval(pandas_df, print_dataframe, print_memory, print_time, print_buil
         column_count_df = pd.DataFrame([["Nanoseconds", a_min, a_max, mean, (mean*N_TRAVERSALS)/num_rows, adj_metric],
                                            ["Seconds", a_min/NANOS, a_max/NANOS, mean/NANOS, ((mean/NANOS)*N_TRAVERSALS)/num_rows, adj_metric/NANOS]],
                                            columns=[name, 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals', f'TT {N_TRAVERSALS}-traversals (adjusted)'])
+        print(column_count_df)
+        # Column Count (Manual) Cython
+        name = 'Column Count (Manual) Cython'
+        temp_adj_metric, column_count_df = col_count_cy(pandas_df, N_TRAVERSALS, num_rows, num_cols, name)
+        built_res[name] = temp_adj_metric
         print(column_count_df)
         # Column Count (Built-in)
         name = 'Column Count (Built-in)'

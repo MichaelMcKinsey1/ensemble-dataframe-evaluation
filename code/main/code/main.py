@@ -6,9 +6,9 @@ import numpy as np
 import helpers
 from evalu import pandas_ev, dask_ev, arrow_ev
 
-EXTRA_OUT=False
-MEMORY=True
-TIME=True
+EXTRA_OUT=True
+MEMORY=False
+TIME=False
 BUILT_IN=True
 NANOS=1000000000
 N_TRAVERSALS=1000
@@ -30,6 +30,13 @@ def main():
     pandas_df_from_hatchet = (helpers.prep_hatchet_gf(dataset, reader_type)).dataframe # Hatchet graphframe.dataframe
     dask_df =  helpers.prep_dask_df(pandas_df_from_hatchet) # Pre-computed dask dataframe
     arrow_table = helpers.prep_arrow_table(pandas_df_from_hatchet) # Arrow table from pandas.
+
+    # computed_ddf = dask_df.compute()
+    # print(pandas_df_from_hatchet['node'].iloc[0])
+    # print(computed_ddf['node'].iloc[0])
+    # for i in range(len(pandas_df_from_hatchet)):
+    #     if str(pandas_df_from_hatchet['node'].iloc[i]) != str(computed_ddf['node'].iloc[i]):
+    #         print(f"{i}: {str(pandas_df_from_hatchet['node'].iloc[i])} != {str(computed_ddf['node'].iloc[i])}")
 
     print(f"Rows: {len(pandas_df_from_hatchet)}")
     print(f"Columns: {len(pandas_df_from_hatchet.columns)}")
