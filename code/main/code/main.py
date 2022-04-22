@@ -16,7 +16,7 @@ X=100
 
 # Pandas display options for cli.
 pd.set_option('display.width', 1500)
-pd.set_option('display.max_rows', 100)
+pd.set_option('display.max_rows', 30)
 pd.set_option('display.max_columns', 10)
 pd.set_option('display.float_format', lambda x: '%.5f' % x)
 
@@ -41,11 +41,12 @@ def main():
     #         print(f"{i}: {type(pandas_df_from_hatchet['node'].iloc[i])} == {type(computed_ddf['node'].iloc[i])}")
 
     print(f"Rows: {len(pandas_df_original)}")
-    print(f"Columns: {len(pandas_df_original.columns)}")
+    print(f"Columns: {len(pandas_df_original.columns)}\n")
 
     for i in range(2):
-        print(i)
+        print(f"level={i}")
         print(pandas_df_original.unstack(level=i))
+        print("\n")
 
     helpers.print_separator("Pandas Original")
     pandas_orig_time, pandas_orig_built = pandas_ev.pandas_eval(pandas_df_original, EXTRA_OUT, MEMORY, TIME, BUILT_IN, N_TRAVERSALS)
