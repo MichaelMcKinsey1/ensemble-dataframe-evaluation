@@ -2,7 +2,7 @@ import sys
 import time
 import pandas as pd
 from .ev_helpers import print_memory_size, calc_statistics
-from .pandas_ev_cy import col_count_cy
+#from .my_cython.src.pandas_ev_cy import col_count_cy
 
 RANDOM=False
 NANOS=1000000000
@@ -144,10 +144,10 @@ def pandas_eval(pandas_df, print_dataframe, print_memory, print_time, print_buil
                                            columns=[name, 'Traversal-Time Min', 'TT Max', 'TT Mean', f'TT {N_TRAVERSALS}-traversals', f'TT {N_TRAVERSALS}-traversals (adjusted)'])
         print(column_count_df)
         # Column Count (Manual) Cython
-        name = 'Column Count (Manual) Cython'
-        temp_adj_metric, column_count_df = col_count_cy(pandas_df, N_TRAVERSALS, num_rows, num_cols, name)
-        built_res[name] = temp_adj_metric
-        print(column_count_df)
+        # name = 'Column Count (Manual) Cython'
+        # temp_adj_metric, column_count_df = col_count_cy(pandas_df, N_TRAVERSALS, num_rows, num_cols, name)
+        # built_res[name] = temp_adj_metric
+        # print(column_count_df)
         # Column Count (Built-in)
         name = 'Column Count (Built-in)'
         mean = 0

@@ -1,7 +1,7 @@
 import hatchet as ht
 import pyarrow as pa
 from dask.dataframe import from_pandas
-
+import copy
 
 def prep_hatchet_gf(dataset, reader_type):
     # Read in data
@@ -13,6 +13,8 @@ def prep_hatchet_gf(dataset, reader_type):
         print("Error: Unknown dataset type.")
         exit()
 
+    original_gf = copy.deepcopy(gf)
+
     # Reset multindex ["rank", "node"] and set index to be "nid".
     df_multiindex = ["rank", "node"]
     new_index = "nid"
@@ -20,7 +22,7 @@ def prep_hatchet_gf(dataset, reader_type):
     gf.dataframe.reset_index(df_multiindex[1], inplace=True)
     gf.dataframe.set_index(new_index, inplace=True)
 
-    return gf
+    return gf, original_gf
     
 
 def prep_dask_df(pandas_df):

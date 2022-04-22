@@ -2,5 +2,5 @@ from setuptools import setup
 from Cython.Build import cythonize
 
 setup(
-    ext_modules=cythonize("pandas_ev_cy.pyx"),
+    ext_modules=cythonize("src/*.pyx"),
 )
