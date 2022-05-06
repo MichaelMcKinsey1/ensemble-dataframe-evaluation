@@ -7,12 +7,13 @@ import helpers
 from evalu import pandas_ev, dask_ev, arrow_ev
 from slicing import slice_tests
 
-EXTRA_OUT=False
+EXTRA_OUT=True
 MEMORY=True
 TIME=True
 BUILT_IN=True
+DEBUG=True
 NANOS=1000000000
-N_TRAVERSALS=100
+N_TRAVERSALS=1000
 X=100
 
 # Pandas display options for cli.
@@ -49,8 +50,14 @@ def main():
     print(f"Rows: {len(pandas_df_original)}")
     print(f"Columns: {len(pandas_df_original.columns)}\n")
 
-    helpers.print_separator("Slicing")
-    slice_tests.slicing_tests(pandas_df_original, 10, X, N_TRAVERSALS, EXTRA_OUT)
+    helpers.print_separator("Pandas Original (Slicing)")
+    slice_tests.slicing_tests(pandas_df_original, 100, X, N_TRAVERSALS, EXTRA_OUT, DEBUG)
+
+    # helpers.print_separator("Pandas Original (Slicing: unstacked 0)")
+    # slice_tests.slicing_tests(pandas_orig_unstacked_zero, 10, X, N_TRAVERSALS, EXTRA_OUT, DEBUG)
+
+    # helpers.print_separator("Pandas Original (Slicing: unstacked 1)")
+    # slice_tests.slicing_tests(pandas_orig_unstacked_one, 10, X, N_TRAVERSALS, EXTRA_OUT, DEBUG)
 
     exit()
 
